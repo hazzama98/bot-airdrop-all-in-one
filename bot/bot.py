@@ -3,10 +3,14 @@ import os
 sys.path.append(os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 import asyncio
 import subprocess
-from bot.utils import night_sleep, Colors, loading_animation, print_header, clear_terminal
+from bot.utils import night_sleep, Colors, loading_animation, print_header, clear_terminal, cl, load_keys, all_in_one_menu
 from telethon.sync import TelegramClient
+from data.birdx.get_query import get_web_app_data
 from data.notpixel.get_query import get_web_app_data
+from data.tomarket.get_query import get_web_app_data
+from data.major.get_query import get_web_app_data
 import random
+import telebot
 
 async def process():
     while True:
@@ -16,7 +20,7 @@ async def process():
         print("1. Add API ID and Hash")
         print("2. Add account session")
         print("3. Bot Menu")
-        print("4. Bot All in One")  # Tambahkan opsi Bot All in One
+        print("4. Bot Run All in One")  # Tambahkan opsi Bot All in One
         print("5. Setting")  # Tambahkan opsi Setting
         print("6. Exit")
         
@@ -65,9 +69,36 @@ async def setting_menu():
         await loading_animation("Processing choice", random.uniform(0.5, 2))
 
 async def bot_all_in_one():
-    # Implementasi untuk Bot All in One
-    print("Bot All in One functionality is not yet implemented.")
-    await asyncio.sleep(2)
+    # Path ke file env.txt
+    env_path = os.path.join(os.path.dirname(os.path.dirname(__file__)), 'env.txt')
+    
+    # Cek apakah file env.txt ada dan baca LICENSE
+    if os.path.exists(env_path):
+        with open(env_path, "r") as f:
+            lines = f.readlines()
+            license_key = None
+            for line in lines:
+                if line.startswith("LICENSE="):
+                    license_key = line.strip().split("=")[1]
+                    break
+    else:
+        license_key = None
+
+    # Jika tidak ada lisensi, tampilkan pesan
+    if not license_key:
+        print("Bot Run All in One is only for premium users. \nPlease contact telegram @itbaarts_dev to purchase a license.\n")
+        input("Press Enter to return to the main menu...")
+        return
+
+    # Cek lisensi dengan bot Telegram
+    is_valid = cl()  # Panggil cl tanpa argumen
+    
+    if not is_valid:
+        print("Invalid license. Please contact telegram @itbaarts_dev for support.")
+        return
+    await clear_terminal()
+    await print_header()
+    await all_in_one_menu()
 
 async def bot_menu():
     # Periksa apakah ada sesi yang tersedia
@@ -80,20 +111,24 @@ async def bot_menu():
         await clear_terminal()
         await print_header()  # Tambahkan await di sini
         print("\nBot Menu:")
-        print("1. NotPixel")
+        print("1. NotPixel (Waiting Update)")
         print("2. BirdX")
         print("3. Tomarket")  # Tambahkan opsi Tomarket
-        print("4. Return to Main Menu")
+        print("4. Major")  # Tambahkan opsi major
+        print("5. Return to Main Menu")
         
         option = input("Enter your choice: ")
         
         if option == "1":
-            await notpixel_menu()
+            #await notpixel_menu()
+            print("NotPixel is currently unavailable due to updates.")
         elif option == "2":
             await birdx_menu()
         elif option == "3":
             await tomarket_menu()  # Tambahkan fungsi untuk menu Tomarket
         elif option == "4":
+            await major_menu()  # Tambahkan fungsi untuk menu major
+        elif option == "5":
             return
         else:
             print("[!] Invalid option. Please try again.")
@@ -170,8 +205,32 @@ async def tomarket_menu():
         await asyncio.sleep(random.uniform(0.5, 2))
         await loading_animation("Processing choice", random.uniform(0.5, 2))
 
+async def major_menu():
+    while True:
+        await clear_terminal()
+        await print_header()
+        print("\nMajor Menu:")
+        print("1. Create Query ID")
+        print("2. Run BOT")
+        print("3. Return to Bot Menu")
+        
+        option = input("Enter your choice: ")
+        
+        if option == "1":
+            await create_query_id("major")
+        elif option == "2":
+            await run_bot("major")
+        elif option == "3":
+            return
+        else:
+            print("[!] Invalid option. Please try again.")
+        
+        await asyncio.sleep(random.uniform(0.5, 2))
+        await loading_animation("Processing choice", random.uniform(0.5, 2))
+
 async def create_query_id(bot_type):
-    module = __import__("data.notpixel.get_query", fromlist=["create_query_id"])
+    # Import dinamis berdasarkan bot_type
+    module = __import__(f"data.{bot_type}.get_query", fromlist=["create_query_id"])
     
     await loading_animation(f"Creating Query ID for {bot_type}", random.uniform(0.5, 2))
     await module.create_query_id()
@@ -261,4 +320,4 @@ async def main():
 
 # Run main function with asyncio
 if __name__ == "__main__":
-    asyncio.run(main())
+    bot.polling(none_stop=True)
