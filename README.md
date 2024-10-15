@@ -3,6 +3,13 @@
 Telegram Airdrop BOT is a fully automatic tool to get more airdrops easily. With built-in anti-detection features, this bot works efficiently and undetected to provide the best results. Simplify your tasks with NotPixel Bot!
 
 TELEGRAM GROUP LINK: https://t.me/UxScript
+TELEGRAM GROUP LINK: https://t.me/ISB_DEV
+
+## LIST BOT
+### NOTPIXEL (SOON)
+### BIRDX
+### TOMARKET
+### MAJOR
 
 ## Installation
 
